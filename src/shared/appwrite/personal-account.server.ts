@@ -10,20 +10,10 @@ import { ExecutionMethod } from 'node-appwrite'
 import type { Functions } from 'node-appwrite'
 
 import { functionId } from './client.server'
-
-export const PERSONAL_ROLES = ['property_owner', 'realtor'] as const
-export type PersonalAccountRole = (typeof PERSONAL_ROLES)[number]
-
-export type PersonalAccount = {
-  personalAccountId: string
-  firstName: string
-  lastName: string
-  role: PersonalAccountRole
-  contactEmail: string | null
-  bio: string | null
-  createdAt: string
-  updatedAt: string
-}
+import type {
+  PersonalAccountRole,
+  PersonalAccount,
+} from '../domain/personal-account'
 
 type ErrorBody = {
   error: string

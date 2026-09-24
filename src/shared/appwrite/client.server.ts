@@ -10,9 +10,14 @@
  * Function, because the Function reads the caller's identity from
  * `x-appwrite-user-id`, which Appwrite only sets when the execution itself
  * carries a user session — not when it carries an admin API key.
+ *
+ * Env vars are read lazily, inside these functions, rather than at module
+ * load. Reading them at the top level runs as soon as the module is
+ * imported, which can happen during client-side bundling analysis — this
+ * file must do nothing until one of its functions is actually called.
  */
 
-import { Account, Client, Functions } from 'node-appwrite'
+import { Account, Client, Functions, Users } from 'node-appwrite'
 
 function requireEnv(name: string): string {
   const value = process.env[name]
@@ -22,20 +27,18 @@ function requireEnv(name: string): string {
   return value
 }
 
-const ENDPOINT = requireEnv('APPWRITE_ENDPOINT')
-const PROJECT_ID = requireEnv('APPWRITE_PROJECT_ID')
-const API_KEY = requireEnv('APPWRITE_API_KEY')
-export const FUNCTION_ID = requireEnv('APPWRITE_FUNCTION_ID')
-
 function baseClient() {
-  return new Client().setEndpoint(ENDPOINT).setProject(PROJECT_ID)
+  return new Client()
+    .setEndpoint(requireEnv('APPWRITE_ENDPOINT'))
+    .setProject(requireEnv('APPWRITE_PROJECT_ID'))
 }
 
-/** Admin-privileged client. Auth flow only — never for calling the Function. */
+/** Auth flow only — never use this for calling the Function. */
 export function adminClient() {
-  const client = baseClient().setKey(API_KEY)
+  const client = baseClient().setKey(requireEnv('APPWRITE_API_KEY'))
   return {
     account: new Account(client),
+    users: new Users(client),
   }
 }
 
@@ -45,4 +48,8 @@ export function sessionClient(sessionSecret: string) {
     account: new Account(client),
     functions: new Functions(client),
   }
+}
+
+export function functionId() {
+  return requireEnv('APPWRITE_FUNCTION_ID')
 }
