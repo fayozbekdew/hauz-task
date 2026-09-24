@@ -103,11 +103,11 @@ One Appwrite Function with three routes. It is deployed with **Execute access:
 users**, which means a signed-in Appwrite user can execute it and a guest
 cannot.
 
-| Route | Body | Result |
-|---|---|---|
-| `GET /personal-account` | | `200` with the account, `404` if the caller has none |
-| `POST /personal-account` | `firstName`, `lastName`, `role` | `201` created, `200` if it already exists, `409` if it exists with a different role |
-| `PATCH /personal-account` | any of `firstName`, `lastName`, `contactEmail`, `bio` | `200` with the updated account |
+| Route                     | Body                                                  | Result                                                                              |
+| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `GET /personal-account`   |                                                       | `200` with the account, `404` if the caller has none                                |
+| `POST /personal-account`  | `firstName`, `lastName`, `role`                       | `201` created, `200` if it already exists, `409` if it exists with a different role |
+| `PATCH /personal-account` | any of `firstName`, `lastName`, `contactEmail`, `bio` | `200` with the updated account                                                      |
 
 `role` is either `property_owner` or `realtor`.
 
