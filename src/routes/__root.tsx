@@ -5,13 +5,16 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 
+import { getCurrentUser } from '#/features/session/current-user'
 import appCss from '../styles.css?url'
+import { Header } from '#/shared/ui/Header'
 
 export interface RouterContext {
   queryClient: QueryClient
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  loader: () => getCurrentUser(),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -24,13 +27,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const user = Route.useLoaderData()
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        {/* The site header belongs here. See TASK.md. */}
+        <Header user={user} />
         {children}
         <Scripts />
       </body>

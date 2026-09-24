@@ -1,10 +1,10 @@
 import { useState, type SyntheticEvent } from 'react'
-import { useNavigate, useSearch } from '@tanstack/react-router'
-
+import { useNavigate, useRouter, useSearch } from '@tanstack/react-router'
 import { useConfirmEmailCode, useRequestEmailCode } from './auth.queries'
 
 export function LoginForm() {
   const navigate = useNavigate()
+  const router = useRouter()
   const search = useSearch({ from: '/login' })
 
   const [step, setStep] = useState<'email' | 'code'>('email')
@@ -19,11 +19,17 @@ export function LoginForm() {
     event: SyntheticEvent<HTMLFormElement, SubmitEvent>,
   ) {
     event.preventDefault()
+
     requestCode.mutate(
-      { data: { email } },
+      {
+        data: {
+          email: email.trim(),
+        },
+      },
       {
         onSuccess: (result) => {
           setUserId(result.userId)
+          setCode('')
           setStep('code')
         },
       },
@@ -34,14 +40,29 @@ export function LoginForm() {
     event: SyntheticEvent<HTMLFormElement, SubmitEvent>,
   ) {
     event.preventDefault()
+
     confirmCode.mutate(
-      { data: { userId, secret: code, redirect: search.redirect } },
+      {
+        data: {
+          userId,
+          secret: code.trim(),
+          redirect: search.redirect,
+        },
+      },
       {
         onSuccess: (result) => {
-          void navigate({ to: result.redirectTo })
+          void router.invalidate()
+          void navigate({
+            to: result.redirectTo,
+          })
         },
       },
     )
+  }
+
+  function handleChangeEmail() {
+    setCode('')
+    setStep('email')
   }
 
   if (step === 'email') {
@@ -58,9 +79,11 @@ export function LoginForm() {
             }}
           />
         </label>
+
         <button type="submit" disabled={requestCode.isPending}>
           {requestCode.isPending ? 'Sending…' : 'Send code'}
         </button>
+
         {requestCode.isError && <p>{requestCode.error.message}</p>}
       </form>
     )
@@ -68,6 +91,10 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleConfirmCode}>
+      <p>
+        We sent a code to <strong>{email}</strong>
+      </p>
+
       <label>
         Code
         <input
@@ -78,9 +105,15 @@ export function LoginForm() {
           }}
         />
       </label>
+
       <button type="submit" disabled={confirmCode.isPending}>
         {confirmCode.isPending ? 'Signing in…' : 'Continue'}
       </button>
+
+      <button type="button" onClick={handleChangeEmail}>
+        Change email
+      </button>
+
       {confirmCode.isError && <p>{confirmCode.error.message}</p>}
     </form>
   )
