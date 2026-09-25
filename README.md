@@ -126,3 +126,8 @@ it if you need to, but say why in `NOTES.md`.
 Appwrite Cloud sends the sign-in codes from its own mail server on the free
 plan. Check your spam folder. If nothing arrives after a few minutes, Cloud may
 be rate limiting you, so wait and retry rather than clicking send repeatedly.
+
+## Project structure
+
+Feature-based organization — see `src/features/`, `src/routes/`,
+`src/shared/`. See `NOTES.md` for architecture decisions.
