@@ -2,12 +2,12 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { getProfile } from '#/features/profile/profile'
 import { ProfileForm } from '#/features/profile/ProfileForm'
-import { getSessionSecret } from '#/shared/appwrite/session.server'
+import { hasSession } from '#/features/session/require-auth'
 
 export const Route = createFileRoute('/profile')({
-  beforeLoad: () => {
-    const secret = getSessionSecret()
-    if (!secret) {
+  beforeLoad: async () => {
+    const signedIn = await hasSession()
+    if (!signedIn) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({
         to: '/login',

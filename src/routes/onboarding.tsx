@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
+import { hasSession } from '#/features/session/require-auth'
 
-import { getSessionSecret } from '#/shared/appwrite/session.server'
 import { OnboardingForm } from '#/features/onboarding/OnboardingForm'
 
 const searchSchema = z.object({
@@ -10,9 +10,9 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute('/onboarding')({
   validateSearch: searchSchema,
-  beforeLoad: () => {
-    const secret = getSessionSecret()
-    if (!secret) {
+  beforeLoad: async () => {
+    const signedIn = await hasSession()
+    if (!signedIn) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({
         to: '/login',
